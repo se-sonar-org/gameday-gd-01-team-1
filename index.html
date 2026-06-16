@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini PHP Blog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mini PHP Blog</h1>
+        <p class="subtitle">A tiny blog powered by PHP &amp; SQLite</p>
+    </header>
+
+    <main>
+        <section id="posts" class="posts">
+            <p class="loading">Loading posts&hellip;</p>
+        </section>
+
+        <section class="new-post">
+            <h2>Write a new post</h2>
+            <form id="post-form">
+                <input type="text" id="title" placeholder="Title" required>
+                <input type="text" id="author" placeholder="Your name" required>
+                <textarea id="body" rows="5" placeholder="Write something&hellip;" required></textarea>
+                <input type="password" id="password" placeholder="Admin password" required>
+                <button type="submit">Publish</button>
+                <span id="form-message"></span>
+            </form>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
