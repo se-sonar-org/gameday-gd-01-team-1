@@ -1,6 +1,6 @@
 # Mini PHP Blog
 
-A tiny example blog app used to demonstrate SonarQube analysis.
+An example blog app used to demonstrate SonarQube analysis.
 
 - **Backend:** PHP + SQLite (PDO)
 - **Frontend:** plain HTML + JavaScript
