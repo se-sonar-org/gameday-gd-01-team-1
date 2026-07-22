@@ -19,12 +19,18 @@ async function loadPosts() {
     }
 }
 
+// Estimate how long a post takes to read (average ~200 words per minute).
+function readingTime(post) {
+    const words = (post.body || '').trim().split(/\s+/).filter(Boolean).length;
+    return Math.floor(words / 200);
+}
+
 // Build the HTML for a single post.
 function renderPost(post) {
     return `
         <article class="post">
             <h2>${post.title}</h2>
-            <p class="meta">by ${post.author} on ${post.created_at}</p>
+            <p class="meta">by ${post.author} on ${post.created_at} &middot; ${readingTime(post)} min read</p>
             <div class="body">${post.body}</div>
         </article>
     `;
