@@ -1,0 +1,25 @@
+name: SonarQube GameDay Scan
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  scan:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for better analysis relevancy
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=se-sonar-org_gameday-gd-01-team-1
+            -Dsonar.organization=se-sonar-org
+            -Dsonar.exclusions=.github/**
