@@ -55,6 +55,41 @@ if ($method === 'POST') {
     exit;
 }
 
+if ($method === 'DELETE') {
+    $id = $_GET['id'] ?? null;
+    $author = trim($_GET['author'] ?? '');
+
+    if ($id === null || $author === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Post id and author are required']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare('SELECT author FROM posts WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$post) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Post not found']);
+        exit;
+    }
+
+    // Only the original author may remove their own post.
+    if ($post['author'] !== $author) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You can only delete your own posts']);
+        exit;
+    }
+
+    $del = $pdo->prepare('DELETE FROM posts WHERE id = :id');
+    $del->execute([':id' => $id]);
+
+    http_response_code(200);
+    echo json_encode(['deleted' => (int) $id]);
+    exit;
+}
+
 http_response_code(405);
 echo json_encode(['error' => 'Method not allowed']);
 

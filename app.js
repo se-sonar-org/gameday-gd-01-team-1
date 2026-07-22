@@ -32,8 +32,18 @@ function renderPost(post) {
             <h2>${post.title}</h2>
             <p class="meta">by ${post.author} on ${post.created_at} &middot; ${readingTime(post)} min read</p>
             <div class="body">${post.body}</div>
+            <button class="delete" data-id="${post.id}" data-author="${post.author}">Delete</button>
         </article>
     `;
+}
+
+// Remove a post. The author is passed so the server can confirm ownership.
+async function deletePost(id, author) {
+    const url = `${API}?id=${encodeURIComponent(id)}&author=${encodeURIComponent(author)}`;
+    const res = await fetch(url, { method: 'DELETE' });
+    if (res.ok) {
+        loadPosts();
+    }
 }
 
 // Handle the new-post form submission.
@@ -67,4 +77,12 @@ async function submitPost(event) {
 }
 
 document.getElementById('post-form').addEventListener('submit', submitPost);
+
+document.getElementById('posts').addEventListener('click', (event) => {
+    const btn = event.target.closest('button.delete');
+    if (btn) {
+        deletePost(btn.dataset.id, btn.dataset.author);
+    }
+});
+
 loadPosts();
