@@ -1,5 +1,7 @@
 const API = 'api.php';
 
+let allPosts = [];
+
 // Load all posts and render them into the page.
 async function loadPosts() {
     const container = document.getElementById('posts');
@@ -7,6 +9,7 @@ async function loadPosts() {
     try {
         const res = await fetch(API);
         const posts = await res.json();
+        allPosts = posts;
 
         if (!posts.length) {
             container.innerHTML = '<p class="loading">No posts yet. Be the first to write one!</p>';
@@ -17,6 +20,28 @@ async function loadPosts() {
     } catch (err) {
         container.innerHTML = '<p class="loading">Failed to load posts.</p>';
     }
+}
+
+// Filter the loaded posts by title or body, case-insensitively.
+function filterPosts(query) {
+    const container = document.getElementById('posts');
+    const q = query.trim().toLowerCase();
+
+    if (!q) {
+        container.innerHTML = allPosts.map(renderPost).join('');
+        return;
+    }
+
+    const matches = allPosts.filter(function (post) {
+        return post.title.indexOf(q) !== -1 || post.body.indexOf(q) !== -1;
+    });
+
+    if (!matches.length) {
+        container.innerHTML = '<p class="loading">No posts match your search.</p>';
+        return;
+    }
+
+    container.innerHTML = matches.map(renderPost).join('');
 }
 
 // Estimate how long a post takes to read (average ~200 words per minute).
@@ -67,4 +92,7 @@ async function submitPost(event) {
 }
 
 document.getElementById('post-form').addEventListener('submit', submitPost);
+document.getElementById('search').addEventListener('input', function (e) {
+    filterPosts(e.target.value);
+});
 loadPosts();
