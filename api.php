@@ -55,6 +55,56 @@ if ($method === 'POST') {
     exit;
 }
 
+if ($method === 'PUT') {
+    $id = $_GET['id'] ?? null;
+    $data = json_decode(file_get_contents('php://input'), true);
+    $author = trim($data['author'] ?? '');
+
+    if ($id === null || $author === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Post id and author are required']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare('SELECT author FROM posts WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$post) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Post not found']);
+        exit;
+    }
+
+    // Only the original author may edit their own post.
+    if ($post['author'] !== $author) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You can only edit your own posts']);
+        exit;
+    }
+
+    $title = trim($data['title'] ?? '');
+    $body  = trim($data['body'] ?? '');
+
+    if ($title === '' || $body === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Title and body are required']);
+        exit;
+    }
+
+    $target = $data['post_id'] ?? $id;
+    $upd = $pdo->prepare('UPDATE posts SET title = :title, body = :body WHERE id = :id');
+    $upd->execute([
+        ':title' => $title,
+        ':body'  => $body,
+        ':id'    => $target,
+    ]);
+
+    http_response_code(200);
+    echo json_encode(['updated' => (int) $target]);
+    exit;
+}
+
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? null;
     $author = trim($_GET['author'] ?? '');

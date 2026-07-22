@@ -32,9 +32,30 @@ function renderPost(post) {
             <h2>${post.title}</h2>
             <p class="meta">by ${post.author} on ${post.created_at} &middot; ${readingTime(post)} min read</p>
             <div class="body">${post.body}</div>
+            <button class="edit" data-id="${post.id}" data-author="${post.author}">Edit</button>
             <button class="delete" data-id="${post.id}" data-author="${post.author}">Delete</button>
         </article>
     `;
+}
+
+// Edit a post in place. The server confirms the author owns it first.
+async function editPost(id, author) {
+    const title = prompt('New title?');
+    const body = prompt('New body?');
+    if (title === null || body === null) {
+        return;
+    }
+
+    const payload = { post_id: id, author, title, body };
+    const res = await fetch(`${API}?id=${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+        loadPosts();
+    }
 }
 
 // Remove a post. The author is passed so the server can confirm ownership.
@@ -79,9 +100,14 @@ async function submitPost(event) {
 document.getElementById('post-form').addEventListener('submit', submitPost);
 
 document.getElementById('posts').addEventListener('click', (event) => {
-    const btn = event.target.closest('button.delete');
-    if (btn) {
-        deletePost(btn.dataset.id, btn.dataset.author);
+    const del = event.target.closest('button.delete');
+    if (del) {
+        deletePost(del.dataset.id, del.dataset.author);
+        return;
+    }
+    const edit = event.target.closest('button.edit');
+    if (edit) {
+        editPost(edit.dataset.id, edit.dataset.author);
     }
 });
 
